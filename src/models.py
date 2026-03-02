@@ -92,9 +92,16 @@ class SampleSizeSection(CharmsBaseModel):
     events_per_variable: Optional[float] = Field(default=None, ge=0)
 
 
+class PrognosticFactorMissingCount(CharmsBaseModel):
+    prognostic_factor_name: str = Field(..., min_length=1)
+    missing_count: int = Field(..., ge=0)
+
+
 class MissingDataSection(CharmsBaseModel):
     participants_with_any_missing_values: Optional[int] = Field(default=None, ge=0)
-    participants_missing_by_prognostic_factor: Optional[dict[str, int]] = Field(default=None)
+    participants_missing_by_prognostic_factor: Optional[list[PrognosticFactorMissingCount]] = Field(
+        default=None
+    )
     attrition_and_censoring_details: Optional[str] = Field(default=None)
     missing_data_handling_method: Optional[MissingDataMethod] = Field(default=None)
     missing_data_handling_other_detail: Optional[str] = Field(default=None)
