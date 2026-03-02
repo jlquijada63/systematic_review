@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from pathlib import Path
 
 from agents import Agent, Runner
@@ -37,7 +38,13 @@ async def main(pdf_path: str | Path | None = None) -> None:
         charms_pf_agent,
         input=f"analiza el siguiente articulo: {article_converted}",
     )
-    print(result.final_output)
+    final_output = result.final_output
+    if hasattr(final_output, "model_dump_json"):
+        print(final_output.model_dump_json(indent=2))
+    elif isinstance(final_output, dict):
+        print(json.dumps(final_output, ensure_ascii=False, indent=2))
+    else:
+        print(json.dumps({"output": str(final_output)}, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
