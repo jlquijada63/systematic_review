@@ -11,6 +11,7 @@
 6. Setting
 
 The objective is to produce structured data to support article selection in a systematic review workflow.
+The `index_prognostic_factor` is user-selected and then validated against the factors studied in the article.
 
 ## How It Works
 The agent is implemented with the OpenAI Agents SDK and uses model `gpt-5-mini`.
@@ -22,7 +23,8 @@ Execution flow:
    - Text extraction: `pypdf`
    - Table extraction: `pdfplumber`
 3. Send parsed article content to the agent with PICOTS-specific instructions.
-4. Validate the model output with Pydantic schemas (`PicotsRecord` or `PicotsExtractionError`).
+4. The user-provided index factor is validated against `studied_prognostic_factors`.
+5. Validate the model output with Pydantic schemas (`PicotsRecord` or `PicotsExtractionError`).
 5. Print final output as JSON.
 
 ## Module Structure
@@ -35,7 +37,8 @@ Execution flow:
 Success output: `PicotsRecord`
 
 - `population: str | None`
-- `index_prognostic_factor: str` (required and unique)
+- `index_prognostic_factor: str` (required, user-selected, and validated)
+- `studied_prognostic_factors: list[str] | None`
 - `comparator_prognostic_factors: list[str] | None`
 - `outcome: str | None`
 - `timing: str | None`
@@ -48,12 +51,13 @@ Error output: `PicotsExtractionError`
 - `failed_field: "index_prognostic_factor"`
 
 If the agent cannot extract one unique `index_prognostic_factor`, it must return the error output.
+It also returns this error when the user-selected factor is not among studied prognostic factors.
 
 ## Run
 From repository root:
 
 ```bash
-uv run src/picots_agent.py
+uv run src/picots_agent.py --index-prognostic-factor "CRP"
 ```
 
 Or call the packaged module directly in Python:
@@ -62,7 +66,7 @@ Or call the packaged module directly in Python:
 import asyncio
 from src.picots_agent.agent import main
 
-asyncio.run(main())
+asyncio.run(main(index_prognostic_factor="CRP"))
 ```
 
 To use a custom PDF path:
@@ -71,5 +75,5 @@ To use a custom PDF path:
 import asyncio
 from src.picots_agent.agent import main
 
-asyncio.run(main("documents/your_article.pdf"))
+asyncio.run(main("documents/your_article.pdf", index_prognostic_factor="CRP"))
 ```

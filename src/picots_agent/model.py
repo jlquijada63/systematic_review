@@ -9,7 +9,8 @@ class PicotsRecord(BaseModel):
     """Structured PICOTS extraction for a prognostic-factor study.
 
     This model represents a successful extraction outcome. The
-    `index_prognostic_factor` field must contain one unique factor.
+    `index_prognostic_factor` field is user-selected and must be
+    validated against the studied prognostic factors reported in the article.
     """
 
     model_config = ConfigDict(
@@ -25,7 +26,11 @@ class PicotsRecord(BaseModel):
     index_prognostic_factor: str = Field(
         ...,
         min_length=1,
-        description="Single unique prognostic factor under evaluation.",
+        description="User-selected prognostic factor validated as studied in the article.",
+    )
+    studied_prognostic_factors: list[str] | None = Field(
+        default=None,
+        description="Prognostic factors explicitly studied in the article.",
     )
     comparator_prognostic_factors: list[str] | None = Field(
         default=None,
