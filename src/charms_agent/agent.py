@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 from pathlib import Path
+import sys
 
 from agents import Agent, Runner
 from dotenv import load_dotenv
@@ -12,9 +13,20 @@ try:
     from .model import CharmsPfRecord
     from .prompt import CHARMS_PF_INSTRUCTIONS
 except ImportError:
-    from src.common.io_helpers import extract_pdf_text_and_tables_markdown
-    from src.charms_agent.model import CharmsPfRecord
-    from src.charms_agent.prompt import CHARMS_PF_INSTRUCTIONS
+    project_root = Path(__file__).resolve().parents[2]
+    src_root = project_root / "src"
+    for candidate in (str(project_root), str(src_root)):
+        if candidate not in sys.path:
+            sys.path.insert(0, candidate)
+
+    try:
+        from src.common.io_helpers import extract_pdf_text_and_tables_markdown
+        from src.charms_agent.model import CharmsPfRecord
+        from src.charms_agent.prompt import CHARMS_PF_INSTRUCTIONS
+    except ImportError:
+        from common.io_helpers import extract_pdf_text_and_tables_markdown
+        from charms_agent.model import CharmsPfRecord
+        from charms_agent.prompt import CHARMS_PF_INSTRUCTIONS
 
 
 load_dotenv()

@@ -1,20 +1,20 @@
 # Search Agent
 
 ## Goal
-`search_agent` performs multi-source medical literature search for prognostic studies and returns normalized article metadata.
+`search_agent` performs PubMed-only medical literature search for prognostic studies and returns normalized article metadata.
 
-Target sources:
+Target source:
 - PubMed (E-utilities)
-- Embase (Elsevier API, if credentials are available)
-- ClinicalTrials.gov (API v2)
-- WHO ICTRP (best-effort API endpoint)
 
 ## How It Works
 1. Loads runtime configuration from a TOML file.
-2. Uses `gpt-5-mini` (OpenAI Agents SDK) to generate database-specific technical search expressions.
-3. Executes source searches via APIs when available.
+2. Builds a deterministic strict PubMed query using only:
+   - `prognostic_factor` (exact phrase in `Title/Abstract`)
+   - `target_population` (exact phrase in `Title/Abstract`)
+   - date range (`start_date` to `end_date`)
+3. Executes PubMed search via E-utilities.
 4. Normalizes records into a common Pydantic schema.
-5. Returns JSON output with article records, source status, and generated queries.
+5. Returns JSON output with article records and generated query.
 
 ## Configuration (TOML)
 Default config path:
@@ -60,10 +60,10 @@ The agent prints JSON (`SearchAgentResult`) with:
   - `abstract`
   - `has_full_text`
   - `full_text_url`
-- `source_status`: status per source (`available`, `results_count`, `detail`, `query`)
-- `search_queries`: the generated technical expressions for each database.
+- `search_queries.pubmed_query`: strict deterministic PubMed expression.
 
 ## Notes
-- Embase is queried only if `EMBASE_API_KEY` or `ELS_API_KEY` is configured.
-- If a source is unavailable, the workflow continues and reports that status in `source_status`.
-- WHO ICTRP endpoint availability may vary and is handled as best-effort.
+- Runtime retrieval is PubMed-only.
+- No synonym/MeSH expansion is applied.
+- Strict query template:
+  - `("prognostic_factor"[Title/Abstract]) AND ("target_population"[Title/Abstract]) AND ("start_date"[Date - Publication] : "end_date"[Date - Publication])`

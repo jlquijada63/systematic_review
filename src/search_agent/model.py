@@ -47,29 +47,13 @@ class SearchQueries(BaseModel):
     )
 
     pubmed_query: str = Field(..., min_length=1)
-    embase_query: str = Field(..., min_length=1)
-    clinicaltrials_query: str = Field(..., min_length=1)
-    ictrp_query: str = Field(..., min_length=1)
-
-
-class SourceStatus(BaseModel):
-    """Execution status for each data source."""
-
-    model_config = ConfigDict(
-        extra="forbid",
-        validate_assignment=True,
-        str_strip_whitespace=True,
-    )
-
-    source: str
-    query: str
-    available: bool
-    results_count: int = Field(default=0, ge=0)
-    detail: str | None = None
+    embase_query: str = Field(default="", description="Optional. Not used in PubMed-only execution mode.")
+    clinicaltrials_query: str = Field(default="", description="Optional. Not used in PubMed-only execution mode.")
+    ictrp_query: str = Field(default="", description="Optional. Not used in PubMed-only execution mode.")
 
 
 class SearchAgentResult(BaseModel):
-    """Final search output with normalized records and per-source status."""
+    """Final search output with normalized records and generated queries."""
 
     model_config = ConfigDict(
         extra="forbid",
@@ -78,5 +62,4 @@ class SearchAgentResult(BaseModel):
     )
 
     articles: list[ArticleRecord] = Field(default_factory=list)
-    source_status: list[SourceStatus] = Field(default_factory=list)
     search_queries: SearchQueries
