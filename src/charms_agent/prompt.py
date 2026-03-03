@@ -1,12 +1,11 @@
-
-CHARMS_PF_INSTRUCTIONS="""
+CHARMS_PF_INSTRUCTIONS = """
 
 ## overview
 
   Eres un asistente experto en realizacion de revisiones sistematicas de la literatura medica.
   Tu funcion es analizar el articulo cientifico que se te va a pasar en el input del usuario y extraer
   los items segun el esquema de la siguiente tabla:
-  
+
   | Domain | Key items | Marks in Figure 2 |
 |---|---|---|
 | SOURCE OF DATA | Source of data (e.g. cohort, case-control, randomised trial participants, or registry data) | X X |

@@ -44,22 +44,7 @@ def _table_to_markdown(table: list[list[Any]]) -> str:
 
 
 def extract_pdf_text_and_tables_markdown(pdf_path: str) -> dict[str, Any]:
-    """Extract text with pypdf and tables with pdfplumber from a PDF.
-
-    Args:
-        pdf_path: Path to a PDF document.
-
-    Returns:
-        A dictionary with:
-        - text: full text across all pages
-        - tables_markdown: list of markdown-formatted tables
-        - metadata: source path, page count, and table count
-
-    Raises:
-        FileNotFoundError: If the PDF path does not exist.
-        ValueError: If the file extension is not .pdf.
-        RuntimeError: If the PDF cannot be parsed.
-    """
+    """Extract text with pypdf and tables with pdfplumber from a PDF."""
     path = Path(pdf_path)
     if not path.exists():
         raise FileNotFoundError(f"PDF file not found: {pdf_path}")
