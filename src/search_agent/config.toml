@@ -1,0 +1,5 @@
+prognostic_factor = "age"
+target_population = "older adults with hip fracture"
+start_date = "2018-01-01"
+end_date = "2024-12-31"
+max_results = 20
