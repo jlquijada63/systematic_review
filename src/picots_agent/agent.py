@@ -3,18 +3,30 @@ from __future__ import annotations
 import asyncio
 import json
 from pathlib import Path
+import sys
 
 from agents import Agent, Runner
 from dotenv import load_dotenv
 
 try:
     from ..common.io_helpers import extract_pdf_text_and_tables_markdown
-    from .model import PicotsRecord
+    from .model import PicotsAgentOutput, PicotsExtractionError, PicotsRecord
     from .prompt import PICOTS_INSTRUCTIONS
 except ImportError:
-    from src.common.io_helpers import extract_pdf_text_and_tables_markdown
-    from src.picots_agent.model import PicotsRecord
-    from src.picots_agent.prompt import PICOTS_INSTRUCTIONS
+    project_root = Path(__file__).resolve().parents[2]
+    src_root = project_root / "src"
+    for candidate in (str(project_root), str(src_root)):
+        if candidate not in sys.path:
+            sys.path.insert(0, candidate)
+
+    try:
+        from src.common.io_helpers import extract_pdf_text_and_tables_markdown
+        from src.picots_agent.model import PicotsAgentOutput, PicotsExtractionError, PicotsRecord
+        from src.picots_agent.prompt import PICOTS_INSTRUCTIONS
+    except ImportError:
+        from common.io_helpers import extract_pdf_text_and_tables_markdown
+        from picots_agent.model import PicotsAgentOutput, PicotsExtractionError, PicotsRecord
+        from picots_agent.prompt import PICOTS_INSTRUCTIONS
 
 
 load_dotenv()
@@ -23,7 +35,7 @@ picots_agent = Agent(
     name="PICOTS Agent",
     model="gpt-5-mini",
     instructions=PICOTS_INSTRUCTIONS,
-    output_type=PicotsRecord,
+    output_type=PicotsAgentOutput,
 )
 
 
@@ -41,6 +53,11 @@ async def main(pdf_path: str | Path | None = None) -> None:
     )
 
     final_output = result.final_output
+    if isinstance(final_output, PicotsRecord) and not final_output.index_prognostic_factor.strip():
+        final_output = PicotsExtractionError(
+            reason="El factor pronostico indice extraido esta vacio y no se puede considerar una extraccion valida."
+        )
+
     if hasattr(final_output, "model_dump_json"):
         print(final_output.model_dump_json(indent=2))
     elif isinstance(final_output, dict):

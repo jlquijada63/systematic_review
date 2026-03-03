@@ -1,4 +1,4 @@
 from .agent import main, picots_agent
-from .model import PicotsRecord
+from .model import PicotsAgentOutput, PicotsExtractionError, PicotsRecord
 
-__all__ = ["PicotsRecord", "picots_agent", "main"]
+__all__ = ["PicotsRecord", "PicotsExtractionError", "PicotsAgentOutput", "picots_agent", "main"]
